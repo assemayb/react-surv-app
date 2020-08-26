@@ -15,18 +15,35 @@ import {
 import axios from "axios";
 import { connect } from "react-redux";
 
-const SuccessMessage = () => (
-  <Message color="green" header="Data is submitted successfully" />
-);
-
+const SuccessMessage = ({ status }) => {
+  if (status === "200") {
+    return (
+      <Message
+        style={{ padding: "2rem" }}
+        color="green"
+        header="Data is submitted successfully"
+      />
+    );
+  } else {
+    return (
+      <Message
+        style={{ padding: "2rem" }}
+        color="red"
+        header="This Question has been added before!"
+      />
+    );
+  }
+};
 function SurvForm({ setDataSubmitted, currentLoggedUser }) {
   const [userSurveys, setUserSurveys] = useState([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [newQuestionAns, setNewQuesionAns] = useState(["ans one"]);
   const [options, setOptions] = useState([]);
   const [dataChanged, setDataChanged] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-
+  const [isSubmitted, setIsSubmitted] = useState({
+    state: false,
+    responseStatus: null,
+  });
   useEffect(() => {
     const getSurv = () => {
       axios
@@ -74,20 +91,28 @@ function SurvForm({ setDataSubmitted, currentLoggedUser }) {
     const isEnoughAns = newQuestionAnswers.length >= 3;
     if (newQuestion && surveyTheme && isEnoughAns && newQuestion !== "") {
       const themeID = userSurveys.find((sur) => sur.theme === surveyTheme).id;
+      const isSubState = isSubmitted.state;
       axios
         .post(`http://127.0.0.1:5000/survey?id=${themeID}`, {
           title: newQuestion,
           answers: newQuestionAns,
         })
         .then((res) => {
-          console.log(res.data);
-          setIsSuccess((prev) => !prev);
+          setIsSubmitted({
+            ...isSubmitted,
+            state: !isSubState,
+            responseStatus: res.status.toString(),
+          });
           setTimeout(() => {
             setDataSubmitted((prevState) => !prevState);
-          }, 2000);
+          }, 1500);
         })
         .catch((err) => {
-          console.error(err);
+          setIsSubmitted({
+            ...isSubmitted,
+            state: !isSubState,
+            responseStatus: err.response.status.toString(),
+          });
         });
     }
   }
@@ -95,10 +120,10 @@ function SurvForm({ setDataSubmitted, currentLoggedUser }) {
   return (
     <Container style={styles.mainContainer}>
       <Segment style={{ padding: "2rem" }}>
-        {!isSuccess ? (
+        {isSubmitted.responseStatus === null ? (
           <h2 style={{ color: "#2185D0" }}>Add Questions To Your Surveys</h2>
         ) : (
-          <SuccessMessage />
+          <SuccessMessage status={isSubmitted.responseStatus} />
         )}
       </Segment>
       <Segment style={{ padding: "1.5rem" }}>

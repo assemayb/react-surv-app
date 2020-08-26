@@ -6,16 +6,28 @@ import {
   Container,
   Form,
   Radio,
-  Label,
-  Header,
   Loader,
-  Dimmer,
-  Image,
   Button,
-  Divider
+  Divider,
 } from "semantic-ui-react";
 
 function SurveyData(props) {
+  const [isChecking, setIsChecking] = useState(false) 
+  const [isUserAllowed, setIsUserAllowed] = useState(false);
+  useEffect(() => {
+    const checkUser = () => {
+      axios
+        .get("http://127.0.0.1:5000/check-user")
+        .then((res) => {
+          console.log(res.data);
+          setIsChecking(true)
+          if (res.status == "200"){
+          }
+        })
+        .catch((err) => console.error(err));
+    };
+    checkUser();
+  }, []);
   const [surveyData, setSurveyData] = useState({
     title: "",
     creator: 0,
@@ -23,6 +35,7 @@ function SurveyData(props) {
   });
   const [submittedData, setSubmittedData] = useState([]);
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const surveyId = props.match.params.surveyID;
@@ -30,7 +43,6 @@ function SurveyData(props) {
       axios
         .get(`http://127.0.0.1:5000/survey?id=${surveyId}`)
         .then((res) => {
-          console.log(res.data);
           setTimeout(() => {
             setSurveyData(res.data);
           }, 300);
@@ -50,44 +62,72 @@ function SurveyData(props) {
       ansVal,
     };
     const isSubmitted = answeredQuestions.includes(quesVal);
-    console.log(isSubmitted);
+    let subData = submittedData;
     if (!isSubmitted) {
       let subQ = answeredQuestions;
       subQ.push(quesVal);
       setAnsweredQuestions(subQ);
-      let subData = submittedData;
       subData.push(singleAns);
-      setSubmittedData(subData);
     } else {
       const ansIndex = submittedData.findIndex(
         (elem) => elem.quesVal === quesVal && elem.questionId === questionId
       );
-      console.log(ansIndex)
-      let subData = submittedData;
       subData[ansIndex] = singleAns;
-      setSubmittedData(subData);
     }
-    console.log(submittedData);
+    setSubmittedData(subData);
+  };
+
+  const submitSurvey = () => {
+    const allQuestionsNum = surveyData.questions.length;
+    const submittedQuestionsNum = answeredQuestions.length;
+    const allQuestAnswered = allQuestionsNum == submittedQuestionsNum;
+    if (allQuestAnswered) {
+      console.log(surveyData);
+      axios
+        .post("http://127.0.0.1:5000/submit-form", { submittedData })
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((err) => console.error(err));
+    } else {
+      setError((prevState) => !prevState);
+      window.scrollTo(0, 50);
+      setTimeout(() => {
+        setError((prevState) => !prevState);
+      }, 2000);
+
+      console.log("NOPEE");
+    }
   };
   return (
-    <Container style={styles.mainContainer}>
+    <>
+    {/* {!isUserAllowed && (
+       <div style={{height: '20vh', padding: '10rem', margin: '4rem'}}>
+       <h1>Waiting for data.......</h1>
+     </div>
+    )} */}
+    { isChecking ? (<Container style={styles.mainContainer}>
       {surveyData.questions.length !== 0 ? (
         <>
           <Container>
-            <div style={styles.header}>{surveyData.title} survey</div>
+            {error == true ? (
+              <div style={styles.header}>Answer All Questions.</div>
+            ) : (
+              <div style={styles.header}>{surveyData.title} survey</div>
+            )}
             <Divider />
           </Container>
           <Segment style={styles.questSection}>
-            {surveyData.questions.map((q) => {
+            {surveyData.questions.map((q, ind) => {
               return (
-                <Container>
+                <Container key={ind}>
                   <Segment style={styles.ansSection}>
                     <Form key={q.id}>
                       <h2> {q.question_title} </h2>
                       {q.answers.map((ans, index) => {
                         return (
-                          <Container style={{ padding: "1rem" }}>
-                            <Form.Field key={index}>
+                          <Container key={index} style={{ padding: "1rem" }}>
+                            <Form.Field>
                               <Radio
                                 label={ans.answer_value}
                                 style={{ fontSize: "15px" }}
@@ -98,8 +138,8 @@ function SurveyData(props) {
                                   handleChange(
                                     q.id,
                                     q.question_title,
-                                    ans.answer_value,
-                                    ans.answer_id
+                                    ans.answer_id,
+                                    ans.answer_value
                                   )
                                 }
                                 // onChange={(e) => console.log(e)}
@@ -115,14 +155,27 @@ function SurveyData(props) {
             })}
           </Segment>
           <Divider />
-          <Button  style={{padding: '2rem', fontSize: '20px'}}color="blue" > submit survey</Button>
+          <Button
+            style={{ padding: "2rem", fontSize: "20px" }}
+            color="blue"
+            onClick={submitSurvey}
+          >
+            submit survey
+          </Button>
         </>
       ) : (
         <Container style={{ height: "40rem" }}>
           <Loader active size="big" />
         </Container>
       )}
-    </Container>
+    </Container>)
+    : (
+      <div style={{height: '20vh', padding: '10rem', margin: '4rem'}}>
+        <h1>Waiting for data.......</h1>
+      </div>
+      
+    )}
+    </>
   );
 }
 

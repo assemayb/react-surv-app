@@ -8,51 +8,77 @@ const BaseMenu = (props) => {
   const handleItemClick = (e, { name }) => {
     setactiveItem(name);
   };
+  const isAuth = props.token;
   return (
-    <Menu
-      color="blue"
-      size="large"
-      widths={5}
-      compact
-      inverted
-      style={styles.menu}
-    >
-      <Menu.Item
-        name="home"
-        active={activeItem === "home"}
-        onClick={handleItemClick}
-        style={styles.item}
-      >
-        <NavLink to="/">
-          <Icon name="home" />
-          Home
-        </NavLink>
-      </Menu.Item>
+    <>
+      {isAuth !== null ? (
+        <Menu
+          color="blue"
+          size="large"
+          widths={5}
+          compact
+          inverted
+          style={styles.menu}
+        >
+          <Menu.Item
+            name="home"
+            active={activeItem === "home"}
+            onClick={handleItemClick}
+            style={styles.item}
+          >
+            <NavLink to="/">
+              <Icon name="home" />
+              Home
+            </NavLink>
+          </Menu.Item>
 
-      <Menu.Item
-        name="my surveys"
-        active={activeItem === "my surveys"}
-        onClick={handleItemClick}
-        style={styles.item}
-      >
-        <Link to="/surveys">
-          <Icon name="edit" />
-          Surveys
-        </Link>
-      </Menu.Item>
+          <Menu.Item
+            name="my surveys"
+            active={activeItem === "my surveys"}
+            onClick={handleItemClick}
+            style={styles.item}
+          >
+            <Link to="/surveys">
+              <Icon name="edit" />
+              Surveys
+            </Link>
+          </Menu.Item>
 
-      <Menu.Item
-        name="profile"
-        active={activeItem === "profile"}
-        onClick={handleItemClick}
-        style={styles.item}
-      >
-        <Link to="/profile">
-          <Icon name="user outline" />
-          profile
-        </Link>
-      </Menu.Item>
-    </Menu>
+          <Menu.Item
+            name="profile"
+            active={activeItem === "profile"}
+            onClick={handleItemClick}
+            style={styles.item}
+          >
+            <Link to="/profile">
+              <Icon name="user outline" />
+              profile
+            </Link>
+          </Menu.Item>
+        </Menu>
+      ) : (
+        <Menu
+          color="blue"
+          size="large"
+          widths={5}
+          compact
+          inverted
+          style={styles.menu}
+        >
+          <Menu.Item
+            name="my surveys"
+            active={activeItem === "my surveys"}
+            onClick={handleItemClick}
+            style={styles.item}
+          >
+            <Link to="/surveys">
+              <Icon name="edit" />
+              Surveys
+            </Link>
+          </Menu.Item>
+        </Menu>
+      )}
+    </>
   );
 };
 
@@ -65,11 +91,11 @@ const styles = {
   },
 };
 
-// const mapStateToProps = (state) => {
-//   return {
-//     token: state.auth.token,
-//   };
-// };
+const mapStateToProps = (state) => {
+  return {
+    token: state.auth.token,
+  };
+};
 
 // const mapDispatchToProps = (dispatch) => {
 //   return {
@@ -77,4 +103,4 @@ const styles = {
 //   };
 // };
 
-export default connect()(BaseMenu);
+export default connect(mapStateToProps)(BaseMenu);
