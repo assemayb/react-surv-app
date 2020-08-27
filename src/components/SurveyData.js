@@ -12,19 +12,26 @@ import {
 } from "semantic-ui-react";
 
 function SurveyData(props) {
-  const [isChecking, setIsChecking] = useState(false) 
+  const [isChecking, setIsChecking] = useState(true);
   const [isUserAllowed, setIsUserAllowed] = useState(false);
+  const surveyID = props.match.params.surveyID
   useEffect(() => {
     const checkUser = () => {
       axios
-        .get("http://127.0.0.1:5000/check-user")
+        .get(`http://127.0.0.1:5000/check-user?survey=${surveyID}`)
         .then((res) => {
-          console.log(res.data);
-          setIsChecking(true)
-          if (res.status == "200"){
+          if (res.status.toString() === "200") {
+            setIsChecking(false);
+            setIsUserAllowed(true);
+          } else {
+            console.log("bzzbzbzbzzb")
+            setIsUserAllowed(false);
+            setIsChecking(false);
           }
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+        });
     };
     checkUser();
   }, []);
@@ -36,6 +43,7 @@ function SurveyData(props) {
   const [submittedData, setSubmittedData] = useState([]);
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const surveyId = props.match.params.surveyID;
@@ -43,9 +51,10 @@ function SurveyData(props) {
       axios
         .get(`http://127.0.0.1:5000/survey?id=${surveyId}`)
         .then((res) => {
-          setTimeout(() => {
-            setSurveyData(res.data);
-          }, 300);
+          setSurveyData(res.data);
+          if (res.data.length >= 1) {
+            setLoading((prev) => !prev);
+          }
         })
         .catch((err) => {
           console.error(err);
@@ -84,8 +93,12 @@ function SurveyData(props) {
     if (allQuestAnswered) {
       console.log(surveyData);
       axios
-        .post("http://127.0.0.1:5000/submit-form", { submittedData })
+        .post(`http://127.0.0.1:5000/submit-form?survey=${surveyID}`, {
+          // title: surveyData.title,
+          submittedData,
+        })
         .then((res) => {
+          console.log(submittedData);
           console.log(res.data);
         })
         .catch((err) => console.error(err));
@@ -101,80 +114,105 @@ function SurveyData(props) {
   };
   return (
     <>
-    {/* {!isUserAllowed && (
-       <div style={{height: '20vh', padding: '10rem', margin: '4rem'}}>
-       <h1>Waiting for data.......</h1>
-     </div>
-    )} */}
-    { isChecking ? (<Container style={styles.mainContainer}>
-      {surveyData.questions.length !== 0 ? (
-        <>
-          <Container>
-            {error == true ? (
-              <div style={styles.header}>Answer All Questions.</div>
-            ) : (
-              <div style={styles.header}>{surveyData.title} survey</div>
-            )}
-            <Divider />
-          </Container>
-          <Segment style={styles.questSection}>
-            {surveyData.questions.map((q, ind) => {
-              return (
-                <Container key={ind}>
-                  <Segment style={styles.ansSection}>
-                    <Form key={q.id}>
-                      <h2> {q.question_title} </h2>
-                      {q.answers.map((ans, index) => {
+      {!isChecking ? (
+        <Container style={styles.mainContainer}>
+          <>
+            {surveyData.questions.length >= 1 ? (
+              <>
+                {isUserAllowed ? (
+                  <div>
+                    <Container>
+                      {error == true ? (
+                        <div style={styles.header}>Answer All Questions.</div>
+                      ) : (
+                        <div style={styles.header}>
+                          {surveyData.title} survey
+                        </div>
+                      )}
+                    </Container>
+                    <Segment style={styles.questSection}>
+                      {surveyData.questions.map((q, ind) => {
                         return (
-                          <Container key={index} style={{ padding: "1rem" }}>
-                            <Form.Field>
-                              <Radio
-                                label={ans.answer_value}
-                                style={{ fontSize: "15px" }}
-                                name={q.question_title}
-                                id={ans.answer_id + ans.answer_value}
-                                value={ans.answer_value}
-                                onClick={(e) =>
-                                  handleChange(
-                                    q.id,
-                                    q.question_title,
-                                    ans.answer_id,
-                                    ans.answer_value
-                                  )
-                                }
-                                // onChange={(e) => console.log(e)}
-                              />
-                            </Form.Field>
+                          <Container key={ind}>
+                            <Segment style={styles.ansSection}>
+                              <Form key={q.id}>
+                                <h2> {q.question_title} </h2>
+                                {q.answers.map((ans, index) => {
+                                  return (
+                                    <Container
+                                      key={index}
+                                      style={{ padding: "1rem" }}
+                                    >
+                                      <Form.Field>
+                                        <Radio
+                                          label={ans.answer_value}
+                                          style={{ fontSize: "15px" }}
+                                          name={q.question_title}
+                                          id={ans.answer_id + ans.answer_value}
+                                          value={ans.answer_value}
+                                          onClick={(e) =>
+                                            handleChange(
+                                              q.id,
+                                              q.question_title,
+                                              ans.answer_id,
+                                              ans.answer_value
+                                            )
+                                          }
+                                          // onChange={(e) => console.log(e)}
+                                        />
+                                      </Form.Field>
+                                    </Container>
+                                  );
+                                })}
+                              </Form>
+                            </Segment>
                           </Container>
                         );
                       })}
-                    </Form>
-                  </Segment>
-                </Container>
-              );
-            })}
-          </Segment>
-          <Divider />
-          <Button
-            style={{ padding: "2rem", fontSize: "20px" }}
-            color="blue"
-            onClick={submitSurvey}
-          >
-            submit survey
-          </Button>
-        </>
-      ) : (
-        <Container style={{ height: "40rem" }}>
-          <Loader active size="big" />
+                    </Segment>
+
+                    <Button
+                      style={{ padding: "2rem", fontSize: "20px" }}
+                      color="blue"
+                      onClick={submitSurvey}
+                    >
+                      SUBMIT
+                    </Button>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      height: "53vh",
+                      padding: "10rem",
+                      margin: "4rem",
+                    }}
+                  >
+                    <Segment>
+                      <div style={{ padding: "2rem" }}>
+                        <h1>You Have Already Submitted This Form.</h1>
+                      </div>
+                    </Segment>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {loading ? (
+                  <Container style={{ height: "40rem" }}>
+                    <Loader active size="big" />
+                  </Container>
+                ) : (
+                  <h1>such empty!</h1>
+                )}
+              </>
+            )}
+          </>
         </Container>
+      ) : (
+        <div style={{ height: "64vh", padding: "10rem", margin: "4rem" }}>
+          <Loader active size="big" />
+        </div>
       )}
-    </Container>)
-    : (
-      <div style={{height: '20vh', padding: '10rem', margin: '4rem'}}>
-        <h1>Waiting for data.......</h1>
-      </div>
-      
-    )}
     </>
   );
 }
@@ -194,13 +232,17 @@ const styles = {
     color: "#2185D0",
   },
   questSection: {
-    margin: "2rem",
+    border: "1px solid dodgerBlue",
+    margin: "3rem",
     borderRadius: "20px",
+    padding: '2rem'
   },
   ansSection: {
-    margin: "30px",
+    margin: "2rem",
+    border: "1px solid dodgerBlue",
     borderRadius: "20px",
     padding: "2rem",
+    boxShadow:"3px 3px 6px 2px rgba(0,0,0,0.39)",
     backgroundColor: "#f7f7f7",
   },
 };

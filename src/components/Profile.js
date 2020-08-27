@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -7,6 +7,8 @@ import {
   Button,
   Message,
   Icon,
+  List,
+  Card,
 } from "semantic-ui-react";
 import axios from "axios";
 import { connect } from "react-redux";
@@ -14,6 +16,25 @@ import { connect } from "react-redux";
 function Profile({ currentLoggedUser }) {
   const [newSurveyTheme, setNewSurveyTheme] = useState("");
   const [dataSubmitted, setDataSubmitted] = useState(false);
+  const [surveys, setSurveys] = useState([]);
+
+  useEffect(() => {
+    const getUserSurveys = () => {
+      const user = currentLoggedUser;
+      axios
+        .get(`http://127.0.0.1:5000/user-surveys?username=${user}`)
+        .then((res) => {
+          setTimeout(() => {
+            console.log(res.data);
+            setSurveys(res.data);
+          }, 300);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+    getUserSurveys();
+  }, []);
   const createNewSurvey = () => {
     const surTheme = newSurveyTheme;
     if (newSurveyTheme) {
@@ -39,18 +60,31 @@ function Profile({ currentLoggedUser }) {
     <Container style={styles.mainContainer}>
       <Grid>
         <Grid.Row columns={3}>
-          <Grid.Column width={3}>
-            <Segment style={styles.col}>
-              <h1>First</h1>
-            </Segment>
+          <Grid.Column width={5}>
+            <Container style={styles.col}>
+              <Segment style={{ color: "dodgerBlue" }}>
+                <h3>Manage Your Surveys</h3>
+                <List>
+                  {surveys.map((sur, index) => {
+                    return (
+                      <List.Item key={index}>
+                        <Card>
+                          <List.Header>{sur.theme}</List.Header>
+                        </Card>
+                      </List.Item>
+                    );
+                  })}
+                </List>
+              </Segment>
+            </Container>
           </Grid.Column>
-          <Grid.Column width={10}>
+          <Grid.Column width={6}>
             <Container style={styles.col}>
               <Segment style={{ color: "cadetblue" }}>
                 {dataSubmitted && (
                   <Icon name="circle notched" loading size="big" />
                 )}
-                {!dataSubmitted && <h1>Create A new Survey</h1>}
+                {!dataSubmitted && <h1>Create A new One</h1>}
               </Segment>
               <Segment>
                 <Form style={{ padding: "2rem" }} onSubmit={createNewSurvey}>
@@ -69,10 +103,12 @@ function Profile({ currentLoggedUser }) {
               </Segment>
             </Container>
           </Grid.Column>
-          <Grid.Column width={3} >
-            <Segment style={styles.col}>
-              <h1>Third</h1>
-            </Segment>
+          <Grid.Column width={4}>
+            <Container style={styles.col}>
+              <Segment style={{ color: "dodgerBlue" }}>
+                <h3>Data</h3>
+              </Segment>
+            </Container>
           </Grid.Column>
         </Grid.Row>
       </Grid>

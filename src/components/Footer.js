@@ -18,11 +18,11 @@ export function Footer() {
 
 const styles = {
   segment: {
-    padding: "1.3rem",
+    padding: "2rem",
     color: "white",
     backgroundColor: "#303030",
     marginTop: "2rem",
-    // position: "fixed",
+    // position: "relative",
     left: 0,
     bottom: 0,
     width: '100%'

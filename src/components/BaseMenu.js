@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from "react";
-import { Menu, Icon } from "semantic-ui-react";
+import { Menu, Icon,Dropdown, Button } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 
@@ -56,11 +56,12 @@ const BaseMenu = (props) => {
             </Link>
           </Menu.Item>
         </Menu>
+        
       ) : (
         <Menu
           color="blue"
           size="large"
-          widths={5}
+          widths={10}
           compact
           inverted
           style={styles.menu}
@@ -68,13 +69,10 @@ const BaseMenu = (props) => {
           <Menu.Item
             name="my surveys"
             active={activeItem === "my surveys"}
-            onClick={handleItemClick}
             style={styles.item}
           >
-            <Link to="/surveys">
-              <Icon name="edit" />
-              Surveys
-            </Link>
+            <Icon name="edit" />
+            Surveys
           </Menu.Item>
         </Menu>
       )}
@@ -85,6 +83,7 @@ const BaseMenu = (props) => {
 const styles = {
   menu: {
     padding: "1rem",
+    fontSize: "1.2rem",
   },
   item: {
     padding: "1rem",
