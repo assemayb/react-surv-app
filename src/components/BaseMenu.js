@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from "react";
-import { Menu, Icon,Dropdown, Button } from "semantic-ui-react";
+import { Menu, Icon, Dropdown, Button } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 
@@ -7,6 +7,13 @@ const BaseMenu = (props) => {
   const [activeItem, setactiveItem] = useState("home");
   const handleItemClick = (e, { name }) => {
     setactiveItem(name);
+    //   if (name === "home") {
+    //     window.location.assign("/");
+    //   } else if (name === "my surveys") {
+    //     window.location.assign("/surveys");
+    //   } else if (name === "profile") {
+    //     window.location.assign("/profile");
+    //   }
   };
   const isAuth = props.token;
   return (
@@ -27,8 +34,7 @@ const BaseMenu = (props) => {
             style={styles.item}
           >
             <NavLink to="/">
-              <Icon name="home" />
-              Home
+              <Icon name="home" /> Home
             </NavLink>
           </Menu.Item>
 
@@ -39,8 +45,7 @@ const BaseMenu = (props) => {
             style={styles.item}
           >
             <Link to="/surveys">
-              <Icon name="edit" />
-              Surveys
+              <Icon name="edit" /> Surveys
             </Link>
           </Menu.Item>
 
@@ -51,12 +56,10 @@ const BaseMenu = (props) => {
             style={styles.item}
           >
             <Link to="/profile">
-              <Icon name="user outline" />
-              profile
+              <Icon name="user outline" /> profile
             </Link>
           </Menu.Item>
         </Menu>
-        
       ) : (
         <Menu
           color="blue"
@@ -71,8 +74,7 @@ const BaseMenu = (props) => {
             active={activeItem === "my surveys"}
             style={styles.item}
           >
-            <Icon name="edit" />
-            Surveys
+            <Icon name="edit" /> Surveys
           </Menu.Item>
         </Menu>
       )}

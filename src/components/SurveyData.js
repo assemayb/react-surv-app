@@ -12,9 +12,12 @@ import {
 } from "semantic-ui-react";
 
 function SurveyData(props) {
+
   const [isChecking, setIsChecking] = useState(true);
   const [isUserAllowed, setIsUserAllowed] = useState(false);
-  const surveyID = props.match.params.surveyID
+  
+  const surveyID = props.match.params.surveyID;
+
   useEffect(() => {
     const checkUser = () => {
       axios
@@ -24,7 +27,7 @@ function SurveyData(props) {
             setIsChecking(false);
             setIsUserAllowed(true);
           } else {
-            console.log("bzzbzbzbzzb")
+            console.log("bzzbzbzbzzb");
             setIsUserAllowed(false);
             setIsChecking(false);
           }
@@ -44,14 +47,25 @@ function SurveyData(props) {
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [ isUserSurveyCreator, setIsUserSurveyCreator ] = useState(false)
 
+  // console.log(props.history)
   useEffect(() => {
     const surveyId = props.match.params.surveyID;
+    const { isAuthenticated, currentLoggedUser } = props;
+
     const getSurveyData = () => {
       axios
         .get(`http://127.0.0.1:5000/survey?id=${surveyId}`)
         .then((res) => {
-          setSurveyData(res.data);
+          console.log(res.data);
+          setSurveyData(res.data); 
+          const creatorName = res.data.creator_name 
+          if (isAuthenticated){
+            currentLoggedUser === creatorName && (
+              setIsUserSurveyCreator(true)
+            )
+          } 
           if (res.data.length >= 1) {
             setLoading((prev) => !prev);
           }
@@ -104,7 +118,7 @@ function SurveyData(props) {
         .catch((err) => console.error(err));
     } else {
       setError((prevState) => !prevState);
-      window.scrollTo(0, 50);
+      window.scrollTo(0, 0);
       setTimeout(() => {
         setError((prevState) => !prevState);
       }, 2000);
@@ -123,7 +137,7 @@ function SurveyData(props) {
                   <div>
                     <Container>
                       {error == true ? (
-                        <div style={styles.header}>Answer All Questions.</div>
+                        <div style={{ color: 'red', fontSize: '25px'}} >Answer All Questions!</div>
                       ) : (
                         <div style={styles.header}>
                           {surveyData.title} survey
@@ -197,13 +211,13 @@ function SurveyData(props) {
               </>
             ) : (
               <>
-                {loading ? (
-                  <Container style={{ height: "40rem" }}>
+                <Container style={{ height: "37rem" }}>
+                  {loading ? (
                     <Loader active size="big" />
-                  </Container>
-                ) : (
-                  <h1>such empty!</h1>
-                )}
+                  ) : (
+                    <h1>such empty!</h1>
+                  )}
+                </Container>
               </>
             )}
           </>
@@ -234,17 +248,22 @@ const styles = {
   questSection: {
     border: "1px solid dodgerBlue",
     margin: "3rem",
-    borderRadius: "20px",
-    padding: '2rem'
+    padding: "2rem",
   },
   ansSection: {
     margin: "2rem",
     border: "1px solid dodgerBlue",
-    borderRadius: "20px",
     padding: "2rem",
-    boxShadow:"3px 3px 6px 2px rgba(0,0,0,0.39)",
+    boxShadow: "3px 3px 6px 2px rgba(0,0,0,0.39)",
     backgroundColor: "#f7f7f7",
   },
 };
 
-export default connect()(SurveyData);
+const mapStateToProps = (state) => {
+  return {
+    isAuthenticated: state.auth.token !== null,
+    currentLoggedUser: state.auth.currentLoggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(SurveyData);

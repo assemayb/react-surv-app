@@ -1,8 +1,9 @@
 import React, { Fragment } from "react";
 import "./App.css"
 import "semantic-ui-css/semantic.min.css";
-import { BrowserRouter as Router} from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { connect } from "react-redux";
+
 
 import BaseRouter from "./routes";
 import BaseMenu from "./components/BaseMenu";
@@ -15,11 +16,11 @@ function App(props) {
   }
   const quarter = 15 * 1000 * 60;
   setInterval(() => props.checkState(), quarter);
-
+  console.log(props)
   return (
     <div className="App">
       <Router>
-        <BaseMenu />
+        <BaseMenu/>
         <BaseRouter />
         <Footer />
       </Router>
@@ -41,4 +42,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default  connect(mapStateToProps, mapDispatchToProps)(App)
+export default connect(mapStateToProps, mapDispatchToProps)(App)

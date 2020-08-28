@@ -9,6 +9,8 @@ import {
   Icon,
   List,
   Card,
+  Header,
+  Divider,
 } from "semantic-ui-react";
 import axios from "axios";
 import { connect } from "react-redux";
@@ -34,7 +36,8 @@ function Profile({ currentLoggedUser }) {
         });
     };
     getUserSurveys();
-  }, []);
+  }, [dataSubmitted, setDataSubmitted]);
+
   const createNewSurvey = () => {
     const surTheme = newSurveyTheme;
     if (newSurveyTheme) {
@@ -58,18 +61,22 @@ function Profile({ currentLoggedUser }) {
   };
   return (
     <Container style={styles.mainContainer}>
-      <Grid>
+      <Grid stackable>
         <Grid.Row columns={3}>
-          <Grid.Column width={5}>
+          <Grid.Column width={6}>
             <Container style={styles.col}>
-              <Segment style={{ color: "dodgerBlue" }}>
-                <h3>Manage Your Surveys</h3>
+              <Segment style={styles.colSegment}>
+                <h2>Manage Your Surveys</h2>
+                <Divider />
                 <List>
                   {surveys.map((sur, index) => {
                     return (
                       <List.Item key={index}>
-                        <Card>
-                          <List.Header>{sur.theme}</List.Header>
+                        <Card
+                          style={styles.card}
+                          href="#card-example-link-card"
+                        >
+                          <Card.Content>{sur.theme}</Card.Content>
                         </Card>
                       </List.Item>
                     );
@@ -78,16 +85,21 @@ function Profile({ currentLoggedUser }) {
               </Segment>
             </Container>
           </Grid.Column>
-          <Grid.Column width={6}>
+          <Grid.Column width={5}>
             <Container style={styles.col}>
-              <Segment style={{ color: "cadetblue" }}>
+              <Segment
+                style={{
+                  color: "cadetblue",
+                  boxShadow: styles.colSegment.boxShadow,
+                }}
+              >
                 {dataSubmitted && (
                   <Icon name="circle notched" loading size="big" />
                 )}
-                {!dataSubmitted && <h1>Create A new One</h1>}
+                {!dataSubmitted && <h2>Create A new One</h2>}
               </Segment>
-              <Segment>
-                <Form style={{ padding: "2rem" }} onSubmit={createNewSurvey}>
+              <Segment style={styles.colSegment}>
+                <Form style={{ padding: "0.4rem" }} onSubmit={createNewSurvey}>
                   <Form.Field>
                     <h3 style={{ color: "cadetblue" }}> Survey Theme</h3>
                     <input
@@ -103,9 +115,9 @@ function Profile({ currentLoggedUser }) {
               </Segment>
             </Container>
           </Grid.Column>
-          <Grid.Column width={4}>
+          <Grid.Column width={5}>
             <Container style={styles.col}>
-              <Segment style={{ color: "dodgerBlue" }}>
+              <Segment style={styles.colSegment}>
                 <h3>Data</h3>
               </Segment>
             </Container>
@@ -118,10 +130,23 @@ function Profile({ currentLoggedUser }) {
 
 const styles = {
   mainContainer: {
-    padding: "4rem",
-    margin: "5rem",
+    padding: "2rem",
+    margin: "3rem",
+    minHeight: "70vh",
   },
-  col: { padding: "2rem" },
+  col: {
+    padding: "2rem",
+  },
+  colSegment: {
+    color: "dodgerBlue",
+  },
+  card: {
+    backgroundColor: "#0c6db2",
+    color: "white",
+    textAlign: "center",
+    fontSize: "1.2rem",
+    margin: "0.2rem",
+  },
 };
 
 const mapStateToProps = (state) => {
