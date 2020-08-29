@@ -16,7 +16,7 @@ function App(props) {
   }
   const quarter = 15 * 1000 * 60;
   setInterval(() => props.checkState(), quarter);
-  console.log(props)
+  
   return (
     <div className="App">
       <Router>

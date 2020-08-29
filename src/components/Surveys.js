@@ -1,61 +1,37 @@
 import React, { useEffect, useState } from "react";
 import {
   Container,
-  Image,
   List,
-  Header,
-  ListDescription,
-  Icon,
   Loader,
   Segment,
-  Card,
+  Button,
+  Popup,
+  Icon,
 } from "semantic-ui-react";
 import axios from "axios";
 import { connect } from "react-redux";
+import SurveyCardItem from "./SurveyCard";
 
-const CardItem = ({ surveyData, history }) => {
-  let created_at_date;
-  created_at_date = surveyData.created_at.split(" ");
-  created_at_date = created_at_date[0];
-  const cardDescription = `${surveyData.questions_num} questions`;
-  const cardHref = `survey/${surveyData.id}`;
-  const enterSurvey = () => {
-    history.push(cardHref)
-  }
-  return (
-    <Card
-      onClick={enterSurvey}
-      style={{
-        borderRadius: "10px",
-        width: "200px",
-        backgroundColor: "#efefef",
-        boxShadow: "3px 3px 6px 2px rgba(0,0,0,0.39)",
-      }}
-      // href={cardHref}
-    >
-      <Card.Content>
-        <Card.Header>
-          <h2 style={{ color: "DodgerBlue" }}>
-            <Icon name="wpforms" />
-            {" "}
-            {surveyData.theme}
-          </h2>
-        </Card.Header>
-        <Segment style={{ backgroundColor: "#fff", borderRadius: "8px" }}>
-          <Card.Description>
-            <h4>{cardDescription}</h4>
-          </Card.Description>
-          <Card.Content extra>
-            <Icon name="time" />
-            {created_at_date}
-          </Card.Content>
-        </Segment>
-      </Card.Content>
-    </Card>
-  );
-};
-
-const ListExampleCelled = ({ surveys, history }) => {
+const ListExampleCelled = ({ surveys, history, setDataChaned, user }) => {
+  const handleDelete = (surveyId) => {
+    axios
+      .delete(
+        `http://127.0.0.1:5000/survey-delete?id=${surveyId}&username=${user}`
+      )
+      .then((res) => {
+        setDataChaned((prev) => !prev);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+  const handleNoDelete = (surveyId) => {
+    console.log("no delete");
+    document.getElementById(`delete-button-${surveyId}`).click();
+  };
+  const editSurvey = (surveyId) => {
+    console.log("edit survey", surveyId);
+  };
   return (
     <List
       horizontal
@@ -65,15 +41,57 @@ const ListExampleCelled = ({ surveys, history }) => {
       {surveys.map((sur) => {
         return (
           <List.Item style={{ margin: "1rem", padding: "2rem" }}>
-            <CardItem raised surveyData={sur} history={history}/>
+            <SurveyCardItem raised surveyData={sur} history={history} />
+            <Popup
+              style={{ borderRadius: "20px" }}
+              content="I will not flip!"
+              on="click"
+              pinned
+              position="bottom right"
+              trigger={
+                <Button
+                  id={`delete-button-${sur.id}`}
+                  style={styles.smallButton}
+                  icon="trash"
+                  color="google plus"
+                />
+              }
+            >
+              <div>
+                <h3>are you sure?</h3>
+                <Button
+                  style={styles.smallButton}
+                  color="youtube"
+                  onClick={() => handleDelete(sur.id)}
+                >
+                  yes
+                </Button>
+                <Button
+                  style={styles.smallButton}
+                  color="green"
+                  onClick={() => handleNoDelete(sur.id)}
+                >
+                  no
+                </Button>
+              </div>
+            </Popup>
+            <Button
+              style={styles.smallButton}
+              icon="edit"
+              color="grey"
+              onClick={() => editSurvey(sur.id)}
+            />
           </List.Item>
         );
       })}
     </List>
   );
 };
+
 function Survey(props) {
   const [data, setData] = useState([]);
+  const [dataChanged, setDataChaned] = useState(false);
+  const currentLoggedUser = props.currentLoggedUser;
 
   useEffect(() => {
     const getUserSurv = () => {
@@ -90,8 +108,8 @@ function Survey(props) {
         });
     };
     getUserSurv();
-  }, []);
-  
+  }, [dataChanged, setDataChaned]);
+
   return (
     <>
       <Container style={{ margin: "2rem" }}>
@@ -100,7 +118,12 @@ function Survey(props) {
             <h2 style={{ padding: "1rem" }}> YOUR SURVEYS</h2>
             <Segment>
               <div style={{ backgroundColor: "#fcfcfc" }}>
-                <ListExampleCelled surveys={data} history={props.history}/>
+                <ListExampleCelled
+                  surveys={data}
+                  history={props.history}
+                  setDataChaned={setDataChaned}
+                  user={currentLoggedUser}
+                />
               </div>
             </Segment>
           </Container>
@@ -120,6 +143,9 @@ const styles = {
     minHeight: "70vh",
     padding: "1rem",
     textAlign: "center",
+  },
+  smallButton: {
+    borderRadius: "50px",
   },
 };
 

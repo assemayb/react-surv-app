@@ -12,32 +12,8 @@ import {
 } from "semantic-ui-react";
 
 function SurveyData(props) {
-
   const [isChecking, setIsChecking] = useState(true);
   const [isUserAllowed, setIsUserAllowed] = useState(false);
-  
-  const surveyID = props.match.params.surveyID;
-
-  useEffect(() => {
-    const checkUser = () => {
-      axios
-        .get(`http://127.0.0.1:5000/check-user?survey=${surveyID}`)
-        .then((res) => {
-          if (res.status.toString() === "200") {
-            setIsChecking(false);
-            setIsUserAllowed(true);
-          } else {
-            console.log("bzzbzbzbzzb");
-            setIsUserAllowed(false);
-            setIsChecking(false);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    };
-    checkUser();
-  }, []);
   const [surveyData, setSurveyData] = useState({
     title: "",
     creator: 0,
@@ -47,25 +23,43 @@ function SurveyData(props) {
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [ isUserSurveyCreator, setIsUserSurveyCreator ] = useState(false)
+  const [isUserSurveyCreator, setIsUserSurveyCreator] = useState(false);
+  
+  const surveyID = props.match.params.surveyID;
 
-  // console.log(props.history)
+  useEffect(() => {
+    console.log("user checking effect")
+    const checkUser = () => {
+      axios
+        .get(`http://127.0.0.1:5000/check-user?survey=${surveyID}`)
+        .then((res) => {
+          setIsChecking(false);
+          if (res.status.toString() === "200") {
+            setIsUserAllowed(true);
+          } else {
+            setIsUserAllowed(false);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+    checkUser();
+  }, []);
+
   useEffect(() => {
     const surveyId = props.match.params.surveyID;
     const { isAuthenticated, currentLoggedUser } = props;
-
+    console.log("getting the surv data")
     const getSurveyData = () => {
       axios
         .get(`http://127.0.0.1:5000/survey?id=${surveyId}`)
         .then((res) => {
-          console.log(res.data);
-          setSurveyData(res.data); 
-          const creatorName = res.data.creator_name 
-          if (isAuthenticated){
-            currentLoggedUser === creatorName && (
-              setIsUserSurveyCreator(true)
-            )
-          } 
+          setSurveyData(res.data);
+          const creatorName = res.data.creator_name;
+          if (isAuthenticated) {
+            currentLoggedUser === creatorName && setIsUserSurveyCreator(true);
+          }
           if (res.data.length >= 1) {
             setLoading((prev) => !prev);
           }
@@ -108,11 +102,9 @@ function SurveyData(props) {
       console.log(surveyData);
       axios
         .post(`http://127.0.0.1:5000/submit-form?survey=${surveyID}`, {
-          // title: surveyData.title,
           submittedData,
         })
         .then((res) => {
-          console.log(submittedData);
           console.log(res.data);
         })
         .catch((err) => console.error(err));
@@ -122,7 +114,6 @@ function SurveyData(props) {
       setTimeout(() => {
         setError((prevState) => !prevState);
       }, 2000);
-
       console.log("NOPEE");
     }
   };
@@ -137,7 +128,9 @@ function SurveyData(props) {
                   <div>
                     <Container>
                       {error == true ? (
-                        <div style={{ color: 'red', fontSize: '25px'}} >Answer All Questions!</div>
+                        <div style={{ color: "red", fontSize: "25px" }}>
+                          Answer All Questions!
+                        </div>
                       ) : (
                         <div style={styles.header}>
                           {surveyData.title} survey

@@ -3,14 +3,10 @@ import {
   Container,
   Grid,
   Message,
-  Header,
   Segment,
   Form,
   Button,
-  Loader,
   Dropdown,
-  Label,
-  Icon,
 } from "semantic-ui-react";
 import axios from "axios";
 import { connect } from "react-redux";

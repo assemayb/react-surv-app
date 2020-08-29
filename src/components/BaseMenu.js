@@ -4,16 +4,11 @@ import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 
 const BaseMenu = (props) => {
-  const [activeItem, setactiveItem] = useState("home");
+  let path = document.location.pathname
+  path = path.slice(1, path.length)
+  const [activeItem, setactiveItem] = useState(path);
   const handleItemClick = (e, { name }) => {
     setactiveItem(name);
-    //   if (name === "home") {
-    //     window.location.assign("/");
-    //   } else if (name === "my surveys") {
-    //     window.location.assign("/surveys");
-    //   } else if (name === "profile") {
-    //     window.location.assign("/profile");
-    //   }
   };
   const isAuth = props.token;
   return (
