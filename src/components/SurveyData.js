@@ -23,8 +23,7 @@ function SurveyData(props) {
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isUserSurveyCreator, setIsUserSurveyCreator] = useState(false);
-
+  const [didSubmit, setDidSubmit] = useState(false);
   const surveyID = props.match.params.surveyID;
 
   useEffect(() => {
@@ -44,21 +43,16 @@ function SurveyData(props) {
         });
     };
     checkUser();
-  }, []);
+  }, [didSubmit, setDidSubmit]);
 
   useEffect(() => {
     const surveyId = props.match.params.surveyID;
-    const { isAuthenticated, currentLoggedUser } = props;
     const getSurveyData = () => {
       axios
         .get(`http://127.0.0.1:5000/survey?id=${surveyId}`)
         .then((res) => {
           setSurveyData(res.data);
           console.log(res.data)
-          const creatorName = res.data.creator_name;
-          if (isAuthenticated) {
-            currentLoggedUser === creatorName && setIsUserSurveyCreator(true);
-          }
           if (res.data.length >= 1) {
             setLoading((prev) => !prev);
           }
@@ -78,7 +72,7 @@ function SurveyData(props) {
       ansVal,
     };
     const isSubmitted = answeredQuestions.includes(quesVal);
-    let subData = submittedData;
+    let subData = JSON.parse(JSON.stringify(submittedData));
     if (!isSubmitted) {
       let subQ = answeredQuestions;
       subQ.push(quesVal);
@@ -98,12 +92,12 @@ function SurveyData(props) {
     const submittedQuestionsNum = answeredQuestions.length;
     const allQuestAnswered = allQuestionsNum == submittedQuestionsNum;
     if (allQuestAnswered) {
-      console.log(surveyData);
       axios
         .post(`http://127.0.0.1:5000/submit-form?survey=${surveyID}`, {
           submittedData,
         })
         .then((res) => {
+          setDidSubmit(prevState => !prevState)
           console.log(res.data);
         })
         .catch((err) => console.error(err));
@@ -195,7 +189,7 @@ function SurveyData(props) {
                   >
                     <Segment>
                       <div style={{ padding: "2rem" }}>
-                        <h1>You Have Already Submitted This Form.</h1>
+                        <h1>You Submitted This Form.</h1>
                       </div>
                     </Segment>
                   </div>

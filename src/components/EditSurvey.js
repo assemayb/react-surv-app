@@ -11,18 +11,19 @@ import {
   Loader,
 } from "semantic-ui-react";
 import axios from "axios";
+import SurveyData from "./SurveyData";
 
 function EditSurvey(props) {
-  const id = props.match.params.surveyID;
+  const surveyId = props.match.params.surveyID;
   const currentLoggedUser = props.currentLoggedUser;
+
   const [surveyData, setSurveyData] = useState({
-    // title: "",
-    // creator: 0,
     questions: [],
   });
   const [dataToSubmit, setDataToSubmit] = useState([]);
-
   const [isLoading, setIsLoading] = useState(true);
+  const [changedQuestionsIDs] = useState([]);
+  const [message, setMessage] = useState({available: false, value: ""})
 
   useEffect(() => {
     const surveyId = props.match.params.surveyID;
@@ -34,7 +35,6 @@ function EditSurvey(props) {
         .then((res) => {
           setSurveyData(res.data);
           setIsLoading(false);
-          console.log(res.data.questions);
         })
         .catch((err) => {
           console.error(err);
@@ -43,28 +43,56 @@ function EditSurvey(props) {
     getSurveyData();
   }, []);
 
-  const changeQuestion = (quesID, quesDefaultVal, quesNewVal) => {
-    let dataArr = surveyData.questions;
-    dataArr[quesID - 1].question_title = quesNewVal;
+  const changeQuestion = (quesIndex, quesDefaultVal, quesNewVal) => {
+    let dataArr = [...surveyData.questions]
+    const questionID = surveyData.questions[quesIndex].id;
+    dataArr[quesIndex].question_title = quesNewVal;
+    if (!changedQuestionsIDs.includes(questionID)) {
+      changedQuestionsIDs.push(questionID);
+    }
     setDataToSubmit(dataArr);
   };
 
-  const changeAnswer = (ansID, ansDefaultVal, ansNewVal, quesID) => {
-    let dataArr = surveyData.questions;
-    let answers = dataArr[quesID - 1].answers;
-    answers[ansID].answer_value = ansNewVal;
+  const changeAnswer = (ansIndex, ansDefaultVal, ansNewVal, quesIndex) => {
+    let dataArr = [...surveyData.questions]
+    let answers = dataArr[quesIndex].answers;
+    const questionID = surveyData.questions[quesIndex].id;
+    answers[ansIndex].answer_value = ansNewVal;
+    if (!changedQuestionsIDs.includes(questionID)) {
+      changedQuestionsIDs.push(questionID);
+    }
     setDataToSubmit(dataArr);
   };
   const submitChanges = () => {
-    const dataChanges = dataToSubmit;
-    if (dataChanges.length === 0) {
-      console.log("احا يا عم");
+    if (dataToSubmit.length === 0) {
+      console.error("No changes !!");
     } else {
-      console.log(dataChanges);
+      console.log(dataToSubmit, changedQuestionsIDs)
+      axios
+        .post(`http://127.0.0.1:5000/survey-update?id=${surveyId}`, {
+          dataToSubmit,
+          changedQuestionsIDs,
+        })
+        .then((res) => {
+          if(res.status.toString() === "200"){
+            window.scrollTo(0, 10)
+            setMessage({ ...message , available: true, value: 'Change has been submitted.'})
+            setTimeout(() => {
+              setMessage({...message, available: false})
+            }, 1500)
+          } 
+          console.log(res.data);
+        })
+        .catch((err) => console.error(err));
     }
   };
   return (
     <Container style={styles.mainContainer}>
+      {message.available === true && (
+        <Container style={{height: '10vh'}}>
+          <h1>{message.value}</h1>
+        </Container>
+      )}
       <Segment>
         <>
           {isLoading && (
@@ -74,7 +102,7 @@ function EditSurvey(props) {
           )}
           <>{surveyData.questions.length === 0 && <h1>No data</h1>}</>
 
-          {surveyData.questions.map((q) => {
+          {surveyData.questions.map((q, qIndex) => {
             return (
               <Segment style={styles.questionSeg}>
                 <Container>
@@ -87,7 +115,7 @@ function EditSurvey(props) {
                       defaultValue={q.question_title}
                       onChange={(e) =>
                         changeQuestion(
-                          q.id,
+                          qIndex,
                           e.target.defaultValue,
                           e.target.value
                         )
@@ -96,7 +124,7 @@ function EditSurvey(props) {
                   </div>
                   <div>
                     <h3 style={{ color: "teal" }}>question answers</h3>
-                    {q.answers.map((ans, index) => {
+                    {q.answers.map((ans, ansIndex) => {
                       return (
                         <Input
                           style={{ minWidth: "50vw" }}
@@ -104,10 +132,10 @@ function EditSurvey(props) {
                           defaultValue={ans.answer_value}
                           onChange={(e) =>
                             changeAnswer(
-                              index,
+                              ansIndex,
                               e.target.defaultValue,
                               e.target.value,
-                              q.id
+                              qIndex
                             )
                           }
                         />
