@@ -24,11 +24,10 @@ function SurveyData(props) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isUserSurveyCreator, setIsUserSurveyCreator] = useState(false);
-  
+
   const surveyID = props.match.params.surveyID;
 
   useEffect(() => {
-    console.log("user checking effect")
     const checkUser = () => {
       axios
         .get(`http://127.0.0.1:5000/check-user?survey=${surveyID}`)
@@ -50,12 +49,12 @@ function SurveyData(props) {
   useEffect(() => {
     const surveyId = props.match.params.surveyID;
     const { isAuthenticated, currentLoggedUser } = props;
-    console.log("getting the surv data")
     const getSurveyData = () => {
       axios
         .get(`http://127.0.0.1:5000/survey?id=${surveyId}`)
         .then((res) => {
           setSurveyData(res.data);
+          console.log(res.data)
           const creatorName = res.data.creator_name;
           if (isAuthenticated) {
             currentLoggedUser === creatorName && setIsUserSurveyCreator(true);
