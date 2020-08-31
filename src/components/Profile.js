@@ -68,38 +68,34 @@ function Profile({ currentLoggedUser, history }) {
       <Grid stackable>
         <Grid.Row columns={3}>
           <Grid.Column width={4}>
-            <Container>
-              <Segment style={styles.colSegment}>
-                <h2 style={{ color: "cadetblue" }}>Manage Your Surveys</h2>
-                {isLoading && (
-                  <Container style={{ marginTop: "16rem" }}>
-                    <Loader active size="big" />
-                  </Container>
-                )}
-                <List>
-                  {surveys.map((sur, index) => {
-                    return (
+            <Segment>
+              <h2 style={{ color: "cornflowerblue" }}>Surveys Info.</h2>
+            </Segment>
+            <Segment style={styles.colSegment}>
+              {isLoading && (
+                <Container style={{ marginTop: "14rem" }}>
+                  <Loader active size="big" />
+                </Container>
+              )}
+              <List>
+                {surveys.map((sur, index) => {
+                  return (
+                    <Container>
                       <List.Item key={index}>
-                        <Card
+                        <Container
                           style={styles.card}
                           onClick={() => enterSurvey(sur.id)}
                         >
-                          <Card.Content>{sur.theme}</Card.Content>
-                          {/* <Button.Group>
-                            <Button icon="delete"/>
-                            <Button> 
-                              <Icon name="edit"/>
-                              edit
-                            </Button>
-                          </Button.Group> */}
-                        </Card>
+                          <Button style={styles.btn1}>{sur.theme}</Button>
+                        </Container>
                       </List.Item>
-                    );
-                  })}
-                </List>
-              </Segment>
-            </Container>
+                    </Container>
+                  );
+                })}
+              </List>
+            </Segment>
           </Grid.Column>
+
           <Grid.Column width={8}>
             <Container style={styles.col}>
               <Segment
@@ -130,32 +126,33 @@ function Profile({ currentLoggedUser, history }) {
               </Segment>
             </Container>
           </Grid.Column>
-
           <Grid.Column width={4}>
-            <Container style={styles.col}>
-              <Segment style={styles.colSegment}>
-                <h2 style={{ color: "cadetblue" }}>Data and Charts</h2>
-                {isLoading && (
-                  <Container style={{ marginTop: "16rem" }}>
-                    <Loader active size="big" />
-                  </Container>
-                )}
-                <List>
-                  {surveys.map((sur, index) => {
-                    return (
+            <Segment>
+              <h2 style={{ color: "cadetblue" }}>Users Data</h2>
+            </Segment>
+            <Segment style={styles.colSegment}>
+              {isLoading && (
+                <Container style={{ marginTop: "14rem" }}>
+                  <Loader active size="big" />
+                </Container>
+              )}
+              <List>
+                {surveys.map((sur, index) => {
+                  return (
+                    <Container>
                       <List.Item key={index}>
-                        <Card
-                          style={styles.otherCard}
+                        <Container
+                          style={styles.card}
                           onClick={() => enterSurvey(sur.id)}
                         >
-                          <Card.Content>{sur.theme}</Card.Content>
-                        </Card>
+                          <Button style={styles.btn2}>{sur.theme}</Button>
+                        </Container>
                       </List.Item>
-                    );
-                  })}
-                </List>
-              </Segment>
-            </Container>
+                    </Container>
+                  );
+                })}
+              </List>
+            </Segment>
           </Grid.Column>
         </Grid.Row>
       </Grid>
@@ -171,27 +168,28 @@ const styles = {
   },
   colSegment: {
     color: "dodgerBlue",
-    display: "flex",
-    flexDirection: "column",
     justifyContent: "center",
-    alignItems: "center",    
+    padding: "1rem",
   },
   card: {
-    backgroundColor: "#0c6db2",
-    color: "white",
+    color: "dodgerblue",
     textAlign: "center",
-    fontSize: "1.2rem",
-    margin: "0.2rem",
-    maxWidth: "210px",
-    backDropFilter: "blur(10px)",
+    fontSize: "1.5em",
+    marginTop: "0.2rem",
+    borderRadius: "30px",
   },
-  otherCard: {
-    color: "teal",
-    textAlign: "center",
-    fontSize: "1.2rem",
-    margin: "0.2rem",
-    maxWidth: "210px",
-  }
+  btn1: {
+    backgroundColor: "cornflowerblue",
+    color: "white",
+    fontSize: "2rem",
+    marginTop: "0.5rem",
+  },
+  btn2: {
+    backgroundColor: "cadetBlue",
+    color: "white",
+    fontSize: "2rem",
+    marginTop: "0.5rem",
+  },
 };
 
 const mapStateToProps = (state) => {

@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 
 const BaseMenu = (props) => {
-  let path = document.location.pathname
-  path = path.slice(1, path.length)
+  let path = document.location.pathname;
+  path = path.slice(1, path.length);
   const [activeItem, setactiveItem] = useState(path);
   const handleItemClick = (e, { name }) => {
     setactiveItem(name);
