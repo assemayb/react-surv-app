@@ -17,8 +17,7 @@ const BaseMenu = (props) => {
         <Menu
           color="blue"
           size="large"
-          widths={5}
-          compact
+          widths={4}
           inverted
           style={styles.menu}
         >
@@ -81,6 +80,10 @@ const styles = {
   menu: {
     padding: "1rem",
     fontSize: "1.2rem",
+    position: "sticky",
+    top: "0",
+    zIndex: "1"
+
   },
   item: {
     padding: "1rem",

@@ -19,6 +19,7 @@ const SurveyCardItem = ({ surveyData, history }) => {
         width: "200px",
         backgroundColor: "#efefef",
         boxShadow: "3px 3px 6px 2px rgba(0,0,0,0.39)",
+        overflow: "auto"
       }}
     >
       <Card.Content>

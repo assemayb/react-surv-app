@@ -182,9 +182,9 @@ function SurveyData(props) {
                 ) : (
                   <div
                     style={{
-                      height: "53vh",
-                      padding: "10rem",
-                      margin: "4rem",
+                      height: "60vh",
+                      marginTop: '6rem',
+                      width: 'auto'
                     }}
                   >
                     <Segment>
@@ -197,7 +197,7 @@ function SurveyData(props) {
               </>
             ) : (
               <>
-                <Container style={{ height: "37rem" }}>
+                <Container style={{ height: "69vh" }}>
                   {loading ? (
                     <Loader active size="big" />
                   ) : (
@@ -209,7 +209,7 @@ function SurveyData(props) {
           </>
         </Container>
       ) : (
-        <div style={{ height: "64vh", padding: "10rem", margin: "4rem" }}>
+        <div style={{ height: "69vh", padding: "10rem", margin: "4rem" }}>
           <Loader active size="big" />
         </div>
       )}

@@ -29,6 +29,7 @@ function Profile({ currentLoggedUser, history }) {
           setTimeout(() => {
             setIsLoading(false);
             setSurveys(res.data);
+            console.log(res.data);
           }, 300);
         })
         .catch((err) => {
@@ -60,8 +61,9 @@ function Profile({ currentLoggedUser, history }) {
     }
   };
   const enterSurvey = (id) => {
-    const cardHref = `survey/${id}`;
+    const cardHref = `/survey-info/${id}`;
     history.push(cardHref);
+    // /survey-info/:surveyID
   };
   return (
     <Container style={styles.mainContainer}>
@@ -86,7 +88,12 @@ function Profile({ currentLoggedUser, history }) {
                           style={styles.card}
                           onClick={() => enterSurvey(sur.id)}
                         >
-                          <Button style={styles.btn1}>{sur.theme}</Button>
+                          <Button animated style={styles.btn1}>
+                            <Button.Content visible>{sur.theme}</Button.Content>
+                            <Button.Content hidden>
+                              <h4>{sur.questions_num} questions</h4>
+                            </Button.Content>
+                          </Button>
                         </Container>
                       </List.Item>
                     </Container>
@@ -128,7 +135,7 @@ function Profile({ currentLoggedUser, history }) {
           </Grid.Column>
           <Grid.Column width={4}>
             <Segment>
-              <h2 style={{ color: "cadetblue" }}>Users Data</h2>
+              <h3 style={{ color: "cadetblue" }}>Number of Participants</h3>
             </Segment>
             <Segment style={styles.colSegment}>
               {isLoading && (
@@ -143,9 +150,14 @@ function Profile({ currentLoggedUser, history }) {
                       <List.Item key={index}>
                         <Container
                           style={styles.card}
-                          onClick={() => enterSurvey(sur.id)}
+                          // onClick={() => enterSurvey(sur.id)}
                         >
-                          <Button style={styles.btn2}>{sur.theme}</Button>
+                          <Button animated style={styles.btn2}>
+                            <Button.Content visible>{sur.theme}</Button.Content>
+                            <Button.Content hidden>
+                              <h4>{sur.submitted_surv_num} participants</h4>
+                            </Button.Content>
+                          </Button>
                         </Container>
                       </List.Item>
                     </Container>
@@ -162,33 +174,37 @@ function Profile({ currentLoggedUser, history }) {
 
 const styles = {
   mainContainer: {
-    padding: "2rem",
-    margin: "3rem",
+    padding: "3rem",
+    margin: "4rem",
     minHeight: "70vh",
   },
   colSegment: {
     color: "dodgerBlue",
     justifyContent: "center",
-    padding: "1rem",
+    padding: "0.3rem",
   },
   card: {
     color: "dodgerblue",
-    textAlign: "center",
+    margin: "auto",
     fontSize: "1.5em",
-    marginTop: "0.2rem",
     borderRadius: "30px",
   },
   btn1: {
     backgroundColor: "cornflowerblue",
     color: "white",
-    fontSize: "2rem",
-    marginTop: "0.5rem",
+    fontSize: "1.5rem",
+    padding: "2.5rem",
+    margin: "10px auto",
+    zIndex: "0",
   },
   btn2: {
     backgroundColor: "cadetBlue",
     color: "white",
-    fontSize: "2rem",
-    marginTop: "0.5rem",
+    fontSize: "1.5rem",
+    margin: "10px auto",
+    padding: "2.5rem",
+    zIndex: "0",
+
   },
 };
 

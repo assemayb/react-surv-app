@@ -39,7 +39,7 @@ function MainLayout({ isAuthenticated }) {
     return (
       <Container style={styles.mainContainer}>
         {isReloaded ? (
-          <Container style={{height: '60vh'}}>
+          <Container style={{ padding: "10rem", height: '69vh' }}>
             <Loader active size="large"/>
           </Container>
         ) : (
@@ -66,11 +66,10 @@ function MainLayout({ isAuthenticated }) {
 const styles = {
   mainContainer: {
     padding: "4rem",
-    height: "auto",
   },
   innerContainer: {
-    padding: "3rem",
-    height: '49vh'
+    padding: "1rem",
+    height: '54vh'
   },
   toggleButton: {
     textAlign: "center",
