@@ -72,7 +72,8 @@ function SurveyData(props) {
       ansVal,
     };
     const isSubmitted = answeredQuestions.includes(quesVal);
-    let subData = JSON.parse(JSON.stringify(submittedData));
+    // let subData = JSON.parse(JSON.stringify(submittedData));
+    let subData = submittedData
     if (!isSubmitted) {
       let subQ = answeredQuestions;
       subQ.push(quesVal);

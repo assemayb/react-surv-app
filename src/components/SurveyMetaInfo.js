@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { Container, Grid, Segment } from "semantic-ui-react";
+import {
+  Container,
+  Grid,
+  Segment,
+  List,
+  Loader,
+  Item,
+  Header,
+} from "semantic-ui-react";
 import axios from "axios";
 import { Doughnut } from "react-chartjs-2";
 
 function SurveyMetaInfo(props) {
   const [isLoading, setIsLoading] = useState(true);
-  const [surveys, setSurveys] = useState([]);
+  const [questionsData, setQuestionsData] = useState([]);
 
-  console.log(props.match.params.surveyID);
   useEffect(() => {
     const getUserSurveys = () => {
-      const user = props.currentLoggedUser;
+      const surveyID = props.match.params.surveyID;
       axios
-        .get(`http://127.0.0.1:5000/user-surveys?username=${user}`)
+        .get(`http://127.0.0.1:5000/form-data?survey=${surveyID}`)
         .then((res) => {
-          setTimeout(() => {
-            setIsLoading(false);
-            setSurveys(res.data);
-            console.log(res.data);
-          }, 300);
+          setQuestionsData(res.data.result);
+          setIsLoading(false);
+          console.log(res.data.result);
         })
         .catch((err) => {
           console.error(err);
@@ -27,33 +32,52 @@ function SurveyMetaInfo(props) {
     };
     getUserSurveys();
   }, []);
-  const data = {
-    labels: ["Red", "Yellow", "Blue"],
-    datasets: [
-      {
-        data: [20, 50, 100],
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-        hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-      },
-    ],
-  };
-
   return (
     <Container style={styles.mainContainer}>
+      <Header></Header>
       <Grid>
         <Grid.Row columns={2}>
-          <Grid.Column>
-            <Segment>
-              <h3>question title</h3>
-              <Doughnut height={100} data={data} />
-            </Segment>
-          </Grid.Column>
-          <Grid.Column>
-            <Segment>
-              <h3>question title</h3>
-              <Doughnut height={100} data={data} />
-            </Segment>
-          </Grid.Column>
+          {isLoading === true ? (
+            <Container style={{ padding: "10rem" }}>
+              <Loader active size="massive" />
+            </Container>
+          ) : (
+            questionsData.map((item) => {
+              return (
+                <Grid.Column style={styles.singleCol}>
+                  <Segment>
+                    <h3 style={{ color: "teal" }}>{item.question}</h3>
+                    <Doughnut
+                      height={150}
+                      width={350}
+                      data={{
+                        labels: item.answers.map((ans) => ans.val),
+                        datasets: [
+                          {
+                            data: item.answers.map((ans) => ans.times),
+                            backgroundColor: [
+                              "#FF6384",
+                              "#36A2EB",
+                              "#FFCE56",
+                              "MediumSeaGreen",
+                              "LightGray",
+                            ],
+                            hoverBackgroundColor: [
+                              "#FF6384",
+                              "#36A2EB",
+                              "#FFCE56",
+                              "MediumSeaGreen",
+                              "LightGray",
+                            ],
+                          },
+                        ],
+                      }}
+                    />
+                  </Segment>
+                </Grid.Column>
+              );
+            })
+          )}
         </Grid.Row>
       </Grid>
     </Container>
@@ -63,8 +87,13 @@ function SurveyMetaInfo(props) {
 const styles = {
   mainContainer: {
     padding: "3rem",
-    margin: "4rem",
-    minHeight: "70vh",
+    margin: "3rem",
+    minHeight: "72vh",
+  },
+  singleCol: {
+    marginTop: "1rem",
+    marginBottom: "1rem",
+    fontFamily: "monospace",
   },
 };
 const mapStateToProps = (state) => {
